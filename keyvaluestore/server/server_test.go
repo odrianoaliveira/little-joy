@@ -1,0 +1,47 @@
+package server
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestCreatePairHandler(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		method            string
+		body              interface{}
+		expectedHttpStaus int
+		expectedBody      string
+	}{
+		{
+			name:              "Valid Request",
+			method:            http.MethodPost,
+			body:              KeyValuePayload{Key: "key", Value: "value"},
+			expectedHttpStaus: http.StatusOK,
+			expectedBody:      `{"message":"key testKey and value testValue has been added."}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rBody, err := json.Marshal(tt.body)
+			assert.NoError(t, err)
+
+			req, err := http.NewRequest(http.MethodPost, "/create", bytes.NewBuffer(rBody))
+			assert.NoError(t, err)
+
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(CreatePairHandler)
+			handler.ServeHTTP(rr, req)
+			assert.Equal(t, tt.expectedHttpStaus, rr.Code)
+			assert.Equal(t, tt.body, rr.Body)
+		})
+	}
+
+}
