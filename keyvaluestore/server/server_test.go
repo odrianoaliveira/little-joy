@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,21 @@ func TestCreatePairHandler(t *testing.T) {
 			method:            http.MethodPost,
 			body:              KeyValuePayload{Key: "key", Value: "value"},
 			expectedHttpStaus: http.StatusOK,
-			expectedBody:      `{"message":"key testKey and value testValue has been added."}`,
+			expectedBody:      `{"message":"key key and value value has been added."}`,
+		},
+		{
+			name:              "Invalid Method",
+			method:            http.MethodDelete,
+			body:              nil,
+			expectedHttpStaus: http.StatusMethodNotAllowed,
+			expectedBody:      "Invalid Method Request",
+		},
+		{
+			name:              "Invalid Body",
+			method:            http.MethodPost,
+			body:              "invalid body",
+			expectedHttpStaus: http.StatusBadRequest,
+			expectedBody:      "Bad Request",
 		},
 	}
 
@@ -33,14 +48,14 @@ func TestCreatePairHandler(t *testing.T) {
 			rBody, err := json.Marshal(tt.body)
 			assert.NoError(t, err)
 
-			req, err := http.NewRequest(http.MethodPost, "/create", bytes.NewBuffer(rBody))
+			req, err := http.NewRequest(tt.method, "/create", bytes.NewBuffer(rBody))
 			assert.NoError(t, err)
 
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(CreatePairHandler)
 			handler.ServeHTTP(rr, req)
 			assert.Equal(t, tt.expectedHttpStaus, rr.Code)
-			assert.Equal(t, tt.body, rr.Body)
+			assert.Equal(t, tt.expectedBody, strings.TrimSpace(rr.Body.String()))
 		})
 	}
 
