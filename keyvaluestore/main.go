@@ -19,9 +19,9 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/pair", server.CreatePairHandler)
 	wrappedMux := middleware.LogRequest(mux)
-	logger.Info("Server is listening on port 8080...")
-	err = http.ListenAndServe(":8080", wrappedMux)
-	if err != nil {
-		logger.Fatal("Error starting server", zap.Error(err))
+
+	if servErr := http.ListenAndServe(":8080", wrappedMux); servErr != nil {
+		logger.Fatal("Error starting server", zap.Error(servErr))
 	}
+	logger.Info("Server is listening on port 8080...")
 }
