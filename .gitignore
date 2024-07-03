@@ -1,0 +1,64 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.coverprofile
+
+# Unit test result files
+*.testresult
+
+# Logs
+*.log
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Godep dependency directory (deprecated)
+Godeps/
+
+# Dep dependency directory
+vendor/
+
+# Go modules
+go.sum
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+# IDEs and editors specific
+### JetBrains ###
+.idea/
+*.iml
+
+### VS Code ###
+.vscode/
+.history/
+
+# Environment variable files
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Installed dependencies for Go 1.11+
+/vendor/
+
+# Binary artifacts
+bin/
+
+# Test binary, output, and profiles
+*.test
+*.out
+*.cover
+
+# Go workspace file
+*.code-workspace
