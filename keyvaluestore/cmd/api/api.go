@@ -25,7 +25,7 @@ func (s *Server) Run() error {
 	wrappedMux := middleware.LogRequest(api)
 
 	root := http.NewServeMux()
-	root.Handle("/api/v1", http.StripPrefix("/api/v1", api))
+	root.Handle("/api/v1", http.StripPrefix("/api/v1", wrappedMux))
 
 	if servErr := http.ListenAndServe(":8080", root); servErr != nil {
 		s.logger.Fatal("Error starting server", zap.Error(servErr))
