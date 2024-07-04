@@ -13,7 +13,7 @@ func main() {
 	}
 	logger.Info("Starting service...")
 
-	server := api.NewAPIServer(":8080", logger)
+	server := api.NewServer(":8080", logger)
 	if err := server.Run(); err != nil {
 		logger.Error("Error starting server", zap.Error(err))
 	}

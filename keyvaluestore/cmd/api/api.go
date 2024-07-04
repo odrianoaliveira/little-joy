@@ -7,24 +7,27 @@ import (
 	"net/http"
 )
 
-type APIServer struct {
+type Server struct {
 	addr   string
 	logger *zap.Logger
 }
 
-func NewAPIServer(addr string, logger *zap.Logger) *APIServer {
-	return &APIServer{
+func NewServer(addr string, logger *zap.Logger) *Server {
+	return &Server{
 		addr:   addr,
 		logger: logger,
 	}
 }
 
-func (s *APIServer) Run() error {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/key-value", server.CreatePairHandler)
-	wrappedMux := middleware.LogRequest(mux)
+func (s *Server) Run() error {
+	api := http.NewServeMux()
+	api.HandleFunc("/key-value", server.CreatePairHandler)
+	wrappedMux := middleware.LogRequest(api)
 
-	if servErr := http.ListenAndServe(":8080", wrappedMux); servErr != nil {
+	root := http.NewServeMux()
+	root.Handle("/api/v1", http.StripPrefix("/api/v1", api))
+
+	if servErr := http.ListenAndServe(":8080", root); servErr != nil {
 		s.logger.Fatal("Error starting server", zap.Error(servErr))
 	}
 
