@@ -2,10 +2,8 @@ package main
 
 import (
 	"go.uber.org/zap"
-	"keyvaluestore/middleware"
-	"keyvaluestore/server"
+	"keyvaluestore/cmd/api"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -13,15 +11,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}
+	logger.Info("Starting service...")
 
-	logger.Info("Starting server...")
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/pair", server.CreatePairHandler)
-	wrappedMux := middleware.LogRequest(mux)
-
-	if servErr := http.ListenAndServe(":8080", wrappedMux); servErr != nil {
-		logger.Fatal("Error starting server", zap.Error(servErr))
+	server := api.NewAPIServer(":8080", logger)
+	if err := server.Run(); err != nil {
+		logger.Error("Error starting server", zap.Error(err))
 	}
+
 	logger.Info("Server is listening on port 8080...")
 }
