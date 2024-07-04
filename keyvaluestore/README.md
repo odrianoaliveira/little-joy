@@ -52,10 +52,10 @@ Go programming skills and understanding of basic data persistence mechanisms.
 2. Interact with the store using HTTP requests. Examples:
     - **Set a value**:
         ```sh
-        curl -X POST -d '{"key":"foo", "value":"bar"}' http://localhost:8080/set
+        curl -X POST -d '{"key":"foo", "value":"bar"}' http://localhost:8080/key-value
         ```
 
     - **Get a value**:
         ```sh
-        curl -X GET 'http://localhost:8080/get?key=foo'
+        curl -X GET 'http://localhost:8080/key-value/foo'
         ```
