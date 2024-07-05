@@ -1,5 +1,5 @@
 # Variables
-APP_NAME := keybaluestore
+APP_NAME := keyvaluestore
 SRC_DIRS := $(shell go list -f '{{.Dir}}' ./...)
 
 # Default target
