@@ -2,7 +2,6 @@ package api
 
 import (
 	"go.uber.org/zap"
-	"keyvaluestore/keyvalue"
 	"keyvaluestore/middleware"
 	"net/http"
 )
@@ -21,7 +20,6 @@ func NewServer(addr string, logger *zap.Logger) *Server {
 
 func (s *Server) Run() error {
 	api := http.NewServeMux()
-	api.HandleFunc("/key-value/{key}", keyvalue.SetValueHandler)
 	wrappedMux := middleware.LogRequest(api)
 
 	root := http.NewServeMux()
