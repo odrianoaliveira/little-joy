@@ -1,6 +1,8 @@
 # Variables
-APP_NAME := keyvaluestore
+APP_NAME := api
 SRC_DIRS := $(shell go list -f '{{.Dir}}' ./...)
+CMD_DIR := ./cmd/$(APP_NAME)
+BIN_DIR := bin
 
 # Default target
 .PHONY: all
@@ -8,9 +10,13 @@ all: build
 
 # Build the project
 .PHONY: build
-build:
-	@echo "Building the project..."
-	go build -o bin/$(APP_NAME) ./cmd/$(APP_NAME)
+build: $(BIN_DIR)
+	@echo "Building the project ..."
+	go build -o $(BIN_DIR)/$(APP_NAME)$(EXT) $(CMD_DIR)
+	@if [ -f $(BIN_DIR)/$(APP_NAME)$(EXT) ]; then echo "Build successful"; chmod +x $(BIN_DIR)/$(APP_NAME)$(EXT); else echo "Build failed"; exit 1; fi
+
+$(BIN_DIR):
+	@mkdir -p $(BIN_DIR)
 
 # Run tests with verbose output
 .PHONY: test
@@ -34,19 +40,20 @@ vet:
 .PHONY: clean
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -f bin/$(APP_NAME)
+	rm -f $(BIN_DIR)/$(APP_NAME)$(EXT)
 
 # Install dependencies
 .PHONY: deps
 deps:
 	@echo "Installing dependencies..."
 	go mod tidy
+	go install ./...
 
 # Run the application
 .PHONY: run
 run: build
 	@echo "Running the application..."
-	./bin/$(APP_NAME)
+	./$(BIN_DIR)/$(APP_NAME)$(EXT)
 
 # Help
 .PHONY: help
