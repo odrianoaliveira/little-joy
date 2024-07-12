@@ -3,12 +3,62 @@ package pair
 import (
 	"bytes"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 )
+
+func TestCreatePairHandler(t *testing.T) {
+	tests := []struct {
+		name        string
+		method      string
+		contentType string
+		payload     string
+		wantStatus  int
+		wantBody    string
+	}{
+		{
+			name:        "Invalid Method",
+			method:      http.MethodGet,
+			contentType: "text/plain; charset=utf-8",
+			payload:     `{"key":"key","value":"value"}`,
+			wantStatus:  http.StatusMethodNotAllowed,
+			wantBody:    "Method not allowed\n",
+		},
+		{
+			name:        "Valid Request",
+			method:      http.MethodPost,
+			contentType: "application/json",
+			payload:     `{"key":"key","value":"value"}`,
+			wantStatus:  http.StatusCreated,
+			wantBody:    `{"key":"key","value":"value"}` + "\n",
+		},
+	}
+	mux := &http.ServeMux{}
+	handler := NewHandler(zap.NewNop())
+	handler.RegisterRoutes(mux)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			payload := bytes.NewReader([]byte(tt.payload))
+			req := httptest.NewRequest(tt.method, "/pair", payload)
+			rr := httptest.NewRecorder()
+
+			mux.ServeHTTP(rr, req)
+
+			res := rr.Result()
+			defer res.Body.Close()
+			body, _ := io.ReadAll(res.Body)
+
+			assert.Equal(t, tt.wantStatus, res.StatusCode)
+			assert.Equal(t, tt.wantBody, string(body))
+			assert.Equal(t, tt.contentType, res.Header.Get("Content-Type"))
+		})
+	}
+}
 
 func TestSetValueHandler(t *testing.T) {
 	tests := []struct {
@@ -49,7 +99,7 @@ func TestSetValueHandler(t *testing.T) {
 		},
 	}
 	mux := &http.ServeMux{}
-	handler := NewHandler()
+	handler := NewHandler(zap.NewNop())
 	handler.RegisterRoutes(mux)
 
 	for _, tt := range tests {
@@ -98,7 +148,7 @@ func TestGetValueHandler(t *testing.T) {
 		},
 	}
 	mux := &http.ServeMux{}
-	handler := NewHandler()
+	handler := NewHandler(zap.NewNop())
 	handler.RegisterRoutes(mux)
 
 	for _, tt := range tests {
