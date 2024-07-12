@@ -11,9 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.22
+      - name: change directory
+        run: cd keyvaluestore
       - name: Install dependencies
         run: make deps
       - name: Run check
-        run: |
-          cd keyvaluestore
+        run:
           make check
