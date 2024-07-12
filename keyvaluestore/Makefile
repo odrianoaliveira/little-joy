@@ -24,6 +24,10 @@ test:
 	@echo "Running tests..."
 	go test -v ./...
 
+.PHONY: check
+check: fmt vet test
+	@echo "All checks passed"
+
 # Format the code
 .PHONY: fmt
 fmt:
@@ -54,20 +58,3 @@ deps:
 run: build
 	@echo "Running the application..."
 	./$(BIN_DIR)/$(APP_NAME)$(EXT)
-
-# Help
-.PHONY: help
-help:
-	@echo "Usage:"
-	@echo "  make [target]"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all     - Default target: build the project"
-	@echo "  build   - Build the project"
-	@echo "  test    - Run tests"
-	@echo "  fmt     - Format the code"
-	@echo "  vet     - Run go vet"
-	@echo "  clean   - Clean build artifacts"
-	@echo "  deps    - Install dependencies"
-	@echo "  run     - Run the application"
-	@echo "  help    - Show this help message"
