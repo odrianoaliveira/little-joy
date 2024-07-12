@@ -2,23 +2,25 @@ package pair
 
 import (
 	"encoding/json"
+	"go.uber.org/zap"
 	"io"
 	"keyvaluestore/service"
 	"net/http"
 )
 
 type Handler struct {
+	logger *zap.Logger
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(logger *zap.Logger) *Handler {
+	return &Handler{logger: logger}
 }
 
 func (h Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/pair/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/pair", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			createPairHandler(w, r)
+			createPairHandler(h.logger, w, r)
 		default:
 			http.Error(w, service.MsgMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
@@ -35,8 +37,24 @@ func (h Handler) RegisterRoutes(mux *http.ServeMux) {
 	})
 }
 
-func createPairHandler(w http.ResponseWriter, r *http.Request) {
+func createPairHandler(logger *zap.Logger, w http.ResponseWriter, r *http.Request) {
+	var p Pair[string]
 
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, service.MsgBadRequest+": invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	logger.Info("Creating pair", zap.String("key", p.Key), zap.String("value", p.Value))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	jErr := json.NewEncoder(w).Encode(p)
+	if jErr != nil {
+		http.Error(w, service.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
 }
 
 func getValueHandler(w http.ResponseWriter, r *http.Request) {
