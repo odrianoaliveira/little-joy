@@ -1,5 +1,5 @@
 # Variables
-APP_NAME := api
+APP_NAME := keystore
 SRC_DIRS := $(shell go list -f '{{.Dir}}' ./...)
 CMD_DIR := ./cmd/$(APP_NAME)
 BIN_DIR := bin
@@ -8,25 +8,20 @@ BIN_DIR := bin
 .PHONY: all
 all: build
 
+$(BIN_DIR):
+	@mkdir -p $(BIN_DIR)
+
 # Build the project
 .PHONY: build
 build: $(BIN_DIR)
 	@echo "Building the project ..."
 	go build -o $(BIN_DIR)/$(APP_NAME)$(EXT) $(CMD_DIR)
-	@if [ -f $(BIN_DIR)/$(APP_NAME)$(EXT) ]; then echo "Build successful"; chmod +x $(BIN_DIR)/$(APP_NAME)$(EXT); else echo "Build failed"; exit 1; fi
-
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
 
 # Run tests with verbose output
 .PHONY: test
 test:
 	@echo "Running tests..."
 	go test -v ./...
-
-.PHONY: check
-check: fmt vet test
-	@echo "All checks passed"
 
 # Format the code
 .PHONY: fmt
@@ -52,6 +47,10 @@ deps:
 	@echo "Installing dependencies..."
 	go mod tidy
 	go install ./...
+
+.PHONY: check
+check: fmt vet test
+	@echo "All checks passed"
 
 # Run the application
 .PHONY: run
