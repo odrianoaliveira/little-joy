@@ -7,22 +7,17 @@ on:
     branches: [ "main" ]
 
 jobs:
-  prepare:
+  keyvaluestore_ci:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: keyvaluestore
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go 1.22
         uses: actions/setup-go@v2
         with:
           go-version: 1.22
-
-  keyvaluestore_ci:
-    needs: prepare
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: keyvaluestore
-    steps:
       - name: Install dependencies
         run: make deps
       - name: Run check
